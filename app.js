@@ -40,7 +40,7 @@ var limiter = rateLimit({
 app.use(limiter);
 
 // Changement des routes
-app.use('/api/auth', authRouter);
+app.use('/api', authRouter);
 app.use('/api/sales', saleRouter); // Ajout de la route des ventes
 
 module.exports = app;
