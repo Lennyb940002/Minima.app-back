@@ -2,8 +2,6 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
-// Additional imports
 var cors = require('cors');
 var bodyParser = require('body-parser');
 var dotenv = require('dotenv');
@@ -11,6 +9,8 @@ var helmet = require('helmet');
 var rateLimit = require('express-rate-limit');
 var { connectDB } = require('./db');
 var { authRouter } = require('./routes/authRoutes');
+// Ajout de l'import du saleRouter
+var { saleRouter } = require('./routes/saleRoutes');
 
 dotenv.config();
 
@@ -22,7 +22,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configure CORS
 app.use(cors({
   origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_AUTH, process.env.FRONTEND_URL_LOCAL, process.env.FRONTEND_URL_LOCAL_AUTH],
   credentials: true,
@@ -30,11 +29,9 @@ app.use(cors({
 }));
 app.use(helmet());
 app.use(bodyParser.json());
-// Connect to MongoDB
+
 connectDB();
 
-
-// Rate limiting
 var limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -42,6 +39,8 @@ var limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use('/api', authRouter);
+// Changement des routes
+app.use('/api/auth', authRouter);
+app.use('/api/sales', saleRouter); // Ajout de la route des ventes
 
 module.exports = app;
