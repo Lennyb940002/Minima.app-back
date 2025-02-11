@@ -1,36 +1,28 @@
-const { Response, NextFunction } = require('express');
-const { User } = require('../models/User');
-const jwt = require('jsonwebtoken');
-const { config } = require('../config');
-
+// Backend: middleware/auth.js
+// Modification critique 3: Améliorer la vérification du token
 const auth = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
-
+        
         if (!token) {
-            throw new Error('Token missing');
+            throw new Error('Token manquant');
         }
 
-        const decoded = jwt.verify(token, config.jwtSecret);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await User.findById(decoded.userId);
 
         if (!user) {
-            throw new Error('User not found');
+            throw new Error('Utilisateur non trouvé');
         }
 
         req.user = {
-            userId: user.id,
-            email: user.email,
-            hasPaid: user.hasPaid,
-            role: user.role
+            userId: user._id,
+            email: user.email
         };
 
         next();
     } catch (error) {
-        res.status(401).json({
-            error: error instanceof Error ? error.message : 'Authentication error'
-        });
+        console.error('Erreur auth:', error);
+        res.status(401).json({ error: 'Veuillez vous authentifier' });
     }
 };
-
-module.exports = { auth };
