@@ -11,7 +11,6 @@ var helmet = require('helmet');
 var rateLimit = require('express-rate-limit');
 var { connectDB } = require('./db');
 var { authRouter } = require('./routes/authRoutes');
-const { saleRouter } = require('./routes/saleRoutes');
 
 dotenv.config();
 
@@ -44,6 +43,5 @@ var limiter = rateLimit({
 app.use(limiter);
 
 app.use('/api', authRouter);
-app.use('/api/sales', saleRouter);
 
 module.exports = app;
