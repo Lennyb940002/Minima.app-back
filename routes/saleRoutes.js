@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { auth } from '../middleware/auth';
-import { SaleService } from '../services/saleService';
+const express = require('express');
+const { auth } = require('../middleware/auth');
+const { SaleService } = require('../services/saleService');
 
-export const saleRouter = Router();
+const saleRouter = express.Router();
 
 saleRouter.use(auth);
 
@@ -62,3 +62,5 @@ saleRouter.delete('/:id', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+module.exports = { saleRouter };
