@@ -1,75 +1,49 @@
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const { connectDB } = require('./db');
-const { authRouter } = require('./routes/authRoutes');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+
+// Additional imports
+var cors = require('cors');
+var bodyParser = require('body-parser');
+var dotenv = require('dotenv');
+var helmet = require('helmet');
+var rateLimit = require('express-rate-limit');
+var { connectDB } = require('./db');
+var { authRouter } = require('./routes/authRoutes');
 const { saleRouter } = require('./routes/saleRoutes');
 
-// Charger les variables d'environnement
 dotenv.config();
 
-// Créer l'application Express
-const app = express();
+var app = express();
 
-// Configuration de base
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(helmet());
-app.use(bodyParser.json());
 
-// Configuration CORS avancée
-const corsOptions = {
-  origin: [
-    process.env.FRONTEND_URL,
-    process.env.FRONTEND_URL_AUTH,
-    process.env.FRONTEND_URL_LOCAL,
-    process.env.FRONTEND_URL_LOCAL_AUTH
-  ],
+// Configure CORS
+app.use(cors({
+  origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_AUTH, process.env.FRONTEND_URL_LOCAL, process.env.FRONTEND_URL_LOCAL_AUTH],
   credentials: true,
   exposedHeaders: ["set-cookie"],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-};
-app.use(cors(corsOptions));
+}));
+app.use(helmet());
+app.use(bodyParser.json());
+// Connect to MongoDB
+connectDB();
 
-// Configuration du rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limite chaque IP à 100 requêtes par fenêtre
-  message: 'Too many requests from this IP, please try again later.',
-  standardHeaders: true, // Retourne les infos de rate limit dans les headers `RateLimit-*`
-  legacyHeaders: false, // Désactive les headers `X-RateLimit-*`
+
+// Rate limiting
+var limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: 'Too many requests from this IP, please try again later.'
 });
 app.use(limiter);
 
-// Connexion à la base de données
-connectDB().catch(console.error);
-
-// Configuration des routes
-app.use('/api/auth', authRouter); // Préfixer les routes d'auth avec /auth
-app.use('/api/sales', saleRouter); // Routes pour les ventes
-
-// Gestion des erreurs 404
-app.use((req, res, next) => {
-  res.status(404).json({ message: 'Route not found' });
-});
-
-// Gestionnaire d'erreurs global
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
-    message: err.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  });
-});
+app.use('/api', authRouter);
+app.use('/api/sales', saleRouter);
 
 module.exports = app;
