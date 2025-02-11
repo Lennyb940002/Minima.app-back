@@ -1,11 +1,11 @@
-import { Sale, ISale } from '../models/Sale';
+const { Sale } = require('../models/Sale');
 
-export class SaleService {
-    static async getAll(userId: string): Promise<ISale[]> {
+class SaleService {
+    static async getAll(userId) {
         return await Sale.find({ userId }).sort({ date: -1 });
     }
 
-    static async create(saleData: any, userId: string): Promise<ISale> {
+    static async create(saleData, userId) {
         try {
             const sale = new Sale({
                 userId,
@@ -27,7 +27,7 @@ export class SaleService {
         }
     }
 
-    static async update(id: string, saleData: any, userId: string): Promise<ISale | null> {
+    static async update(id, saleData, userId) {
         try {
             const updatedData = {
                 ...saleData,
@@ -47,7 +47,7 @@ export class SaleService {
         }
     }
 
-    static async updateDecStatus(id: string, userId: string): Promise<ISale | null> {
+    static async updateDecStatus(id, userId) {
         try {
             const updatedSale = await Sale.findOneAndUpdate(
                 { _id: id, userId },
@@ -61,7 +61,9 @@ export class SaleService {
         }
     }
 
-    static async delete(id: string, userId: string): Promise<ISale | null> {
+    static async delete(id, userId) {
         return await Sale.findOneAndDelete({ _id: id, userId });
     }
 }
+
+module.exports = { SaleService };
