@@ -1,5 +1,5 @@
 var express = require('express');
-var { AuthService } = require('../services/authService');
+var {AuthService} = require('../services/authService');
 
 var authRouter = express.Router();
 
