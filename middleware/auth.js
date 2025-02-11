@@ -1,9 +1,9 @@
-import { Response, NextFunction } from 'express';
-import { User } from '../models/User';
-import jwt from 'jsonwebtoken';
-import { config } from '../config';
+const { Response, NextFunction } = require('express');
+const { User } = require('../models/User');
+const jwt = require('jsonwebtoken');
+const { config } = require('../config');
 
-export const auth = async (req, res, next) => {
+const auth = async (req, res, next) => {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -32,3 +32,5 @@ export const auth = async (req, res, next) => {
         });
     }
 };
+
+module.exports = { auth };
