@@ -15,6 +15,9 @@ dotenv.config();
 
 var app = express();
 
+// Set trust proxy to true
+app.set('trust proxy', 1);
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
