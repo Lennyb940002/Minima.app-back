@@ -9,7 +9,6 @@ var helmet = require('helmet');
 var rateLimit = require('express-rate-limit');
 var { connectDB } = require('./db');
 var { authRouter } = require('./routes/authRoutes');
-// Ajout de l'import du saleRouter
 var { saleRouter } = require('./routes/saleRoutes');
 
 dotenv.config();
@@ -23,7 +22,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cors({
-  origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_AUTH, process.env.FRONTEND_URL_LOCAL, process.env.FRONTEND_URL_LOCAL_AUTH],
+  origin: [
+    process.env.FRONTEND_URL,
+    process.env.FRONTEND_URL_AUTH,
+    process.env.FRONTEND_URL_LOCAL,
+    process.env.FRONTEND_URL_LOCAL_AUTH
+  ],
   credentials: true,
   exposedHeaders: ["set-cookie"],
 }));
@@ -39,8 +43,7 @@ var limiter = rateLimit({
 });
 app.use(limiter);
 
-// Changement des routes
 app.use('/api', authRouter);
-app.use('/api/sales', saleRouter); // Ajout de la route des ventes
+app.use('/api/sales', saleRouter);
 
 module.exports = app;
